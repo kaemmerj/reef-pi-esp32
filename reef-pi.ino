@@ -14,24 +14,37 @@
 #define PWM_RESOLUTION 8
 
 
-
+// Replace with your network credentials
 const char *ssid = "SET_SSID";
 const char *password = "SET_PASSWORD";
 
 const int outletPins[OUTLET_COUNT] = { 5, 16, 17, 18, 19, 23 };
 const int inletPins[INLET_COUNT] = { 1, 3, 14, 36 };
+//Real PWM Output Channels
 const int jackPins[JACK_COUNT] = { 12, 13, 14, 27 };
+//PWM Channels according to JackPins for Reefpi
 const int pwmChannels[JACK_COUNT] = { 0, 1, 2, 3 };
 const int analogInputPins[ANALOG_INPUT_COUNT] = { 32, 33 };
 const int oneWirePin = 4;
 
 OneWire oneWire(oneWirePin);
 DallasTemperature ds18b20(&oneWire);
+// Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
+// Set your Static IP address (remove // if used)
+//IPAddress local_IP(192, 168, 0, 184);
+// Set your Gateway IP address
+//IPAddress gateway(192, 168, 0, 1);
+
+//IPAddress subnet(255, 255, 255, 0);
+//IPAddress primaryDNS(8, 8, 8, 8);   //optional
+//IPAddress secondaryDNS(8, 8, 4, 4); //optional
 
 void setup() {
+  // Serial port for debugging purposes
   Serial.begin(115200);
+  
   for (int i = 0; i < OUTLET_COUNT; i++) {
     pinMode(outletPins[i], OUTPUT);
   }
@@ -48,11 +61,19 @@ void setup() {
   }
   ds18b20.begin();
 
+  // Connect to Wi-Fi network with SSID and password
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    Serial.println("Connecting to WiFi..");
+    Serial.print(".");
   }
+  
+  // Print local IP address and start web server
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
   server.on("/outlets/*", HTTP_POST, switchOutlet);
   server.on("/inlets/*", HTTP_GET, readInlet);
