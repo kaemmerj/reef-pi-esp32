@@ -44,6 +44,10 @@ AsyncWebServer server(80);
 void setup() {
   // Serial port for debugging purposes
   Serial.begin(115200);
+
+  // Configures static IP address
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+    Serial.println("STA Failed to configure");
   
   for (int i = 0; i < OUTLET_COUNT; i++) {
     pinMode(outletPins[i], OUTPUT);
